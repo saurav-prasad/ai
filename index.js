@@ -26,7 +26,7 @@ app.use(cors())
 app.use(express.json())
 
 
-app.use('/chatgeneratetext', async (req, res) => {
+app.get('/chatgeneratetext', async (req, res) => {
     try {
 
         const messages = [{ role: 'user', content: 'Hello' }]
@@ -52,7 +52,7 @@ app.use('/chatgeneratetext', async (req, res) => {
     }
 })
 
-app.use('/chatstreamtext', async (req, res) => {
+app.get('/chatstreamtext', async (req, res) => {
     try {
 
         const result = await streamText({
