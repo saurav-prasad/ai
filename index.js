@@ -5,8 +5,10 @@ import cors from "cors"
 import { streamText } from 'ai';
 import { createOpenAI as createGroq } from '@ai-sdk/openai';
 import { decode } from "openai/internal/qs/utils.mjs";
+import { config } from "dotenv";
+config()
 
-const port = 5200
+const port = process.env.PORT || 5500
 const app = express()
 const api = "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"
 
