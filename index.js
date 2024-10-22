@@ -1,10 +1,9 @@
-import express, { text } from "express"
+import express from "express"
 import { generateText } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 import cors from "cors"
 import { streamText } from 'ai';
 import { createOpenAI as createGroq } from '@ai-sdk/openai';
-import { decode } from "openai/internal/qs/utils.mjs";
 import { config } from "dotenv";
 config()
 
@@ -84,5 +83,6 @@ app.use('/chatstreamtext', async (req, res) => {
 })
 
 app.listen(port, (req, res) => {
+    console.log(process.env.PORT)
     console.log("App is listening at port", port)
 })
