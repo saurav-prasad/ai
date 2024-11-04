@@ -7,7 +7,7 @@ import { createOpenAI as createGroq } from '@ai-sdk/openai';
 import { config } from "dotenv";
 config()
 
-const port = process.env.PORT || 5500
+const port = process.env.PORT || 5000
 const app = express()
 const api = "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"
 
@@ -26,10 +26,10 @@ app.use(cors())
 app.use(express.json())
 
 
-app.get('/chatgeneratetext', async (req, res) => {
+app.post('/generatetext', async (req, res) => {
     try {
-
-        const messages = [{ role: 'user', content: 'Hello' }]
+        console.log(req.body)
+        const messages = [{ role: 'user', content: `${req.body.message}. Explain in only one paragraph and keep it short` }]
 
         // Get a language model
         const model = groq('llama-3.1-70b-versatile')
@@ -48,11 +48,11 @@ app.get('/chatgeneratetext', async (req, res) => {
         res.send({ result: result.text })
     } catch (error) {
         console.log(error)
-        res.send({ error })
+        res.status(500).send({ error })
     }
 })
 
-app.get('/chatstreamtext', async (req, res) => {
+app.get('/chatstreamtext2', async (req, res) => {
     try {
 
         const result = await streamText({
@@ -81,6 +81,35 @@ app.get('/chatstreamtext', async (req, res) => {
         res.send({ error })
     }
 })
+
+app.use('/chatstreamtext', async (req, res) => {
+    try {
+        const result = await streamText({
+            model: groq2('llama-3.1-70b-versatile'),
+            prompt: 'What is love?  explain in only one paragraph',
+        });
+
+        // Set headers for SSE (Server-Sent Events)
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        res.flushHeaders(); // Flush the headers to establish SSE connection
+
+        // Stream data to the client
+        for await (const textPart of result.textStream) {
+            // Send each chunk as a message to the client
+            res.write(`data: ${textPart}\n\n`);
+        }
+
+        // End the stream once done
+        res.write('data: [DONE]\n\n');
+        res.end();
+    } catch (error) {
+        console.log('Error:', error);
+        res.write('data: Error occurred\n\n');
+        res.end();
+    }
+});
 
 app.listen(port, (req, res) => {
     console.log(process.env.PORT)
